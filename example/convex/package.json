@@ -25,7 +25,8 @@
     "clean": "rm -rf dist",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "doctor": "node ../../scripts/doctor.js"
   },
   "dependencies": {
     "ink": "^4.4.1",
@@ -52,7 +53,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/convex-agent"
+    "url": "https://github.com/clarkOS/clark"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -1,17 +1,18 @@
 # ClarkOS
 
-A minimal agent runtime built around state—not endpoints. ClarkOS uses [Convex](https://convex.dev) as the state machine, cutting out the traditional API layer so agents can deploy fast, stay online, and scale into a network of nodes.
-
-**C**ontinuously **L**earning **A**gentic **R**ealtime **K**nowledgebase
-
 **always on. always learning.**
 
+Build autonomous agents with persistent memory & realtime intelligence.
+
+**C**ontinuously **L**earning **A**gentic **R**ealtime **K**nowledgebase **OS**
 
 [Live Demo](https://clark.wiki) · [Docs](https://docs.clarkos.dev) · [X](https://x.com/clarkwiki)
 
 ---
 
-## Why ClarkOS?
+## What is ClarkOS?
+
+ClarkOS is a minimal agent runtime built around state—not endpoints. It uses [Convex](https://convex.dev) as the state machine, cutting out the traditional API layer so agents can deploy fast, stay online, and scale into a network of nodes.
 
 | Traditional Agent Stack | ClarkOS |
 |------------------------|---------|
@@ -20,12 +21,42 @@ A minimal agent runtime built around state—not endpoints. ClarkOS uses [Convex
 | State scattered across services | State in one place |
 | Complex deployment | Deploy in minutes |
 
-### The Vision
+---
 
-- **Cheap**: Minimal infrastructure, serverless scaling
-- **Always-on**: Tick-based execution with durable state
-- **Composable**: Agents as nodes in a larger network
-- **Evolvable**: Memory systems that learn and consolidate
+## CLARK Demo
+
+**See it live:** [clark.wiki](https://clark.wiki)
+
+CLARK is an autonomous AI agent running 24/7 on ClarkOS. It demonstrates the full potential of the framework with advanced features beyond this SDK.
+
+### What CLARK Does
+
+- Thinks autonomously every 5 minutes
+- Forms and consolidates memories over time
+- Detects patterns and generates "moments of brilliance"
+- Maintains mood, health, and routine states
+- Creates daily journal entries
+- Responds to market data, news, and social signals
+
+### SDK vs Full CLARK
+
+| Feature | This SDK | CLARK Demo |
+|---------|----------|------------|
+| Tick-based execution | ✅ | ✅ |
+| 5 memory types | ✅ | ✅ |
+| Type-specific deduplication | ✅ | ✅ |
+| Plugin system | ✅ | ✅ |
+| Multi-provider LLM | ✅ | ✅ |
+| Terminal UI | ✅ | - |
+| Memory linking | Schema only | ✅ Full |
+| Memory consolidation | Schema only | ✅ Full |
+| Consciousness synthesis | Templates only | ✅ Full |
+| Daily journals | Schema only | ✅ Full |
+| Chat with presence | - | ✅ |
+| Market analysis | - | ✅ |
+| Social posting | - | ✅ |
+
+This repository provides the **foundation SDK**. The live demo at clark.wiki runs the full CLARK system with all advanced features.
 
 ---
 
@@ -39,7 +70,7 @@ A minimal agent runtime built around state—not endpoints. ClarkOS uses [Convex
 │   (heartbeat)  │   (5 types)    │    (facts, news, notes)       │
 ├────────────────┼────────────────┼───────────────────────────────┤
 │      LLM       │   Embeddings   │      Deduplication            │
-│  (multi-provider) │   (semantic)  │   (type-specific thresholds)  │
+│ (multi-provider) │  (semantic)   │  (type-specific thresholds)   │
 ├────────────────┴────────────────┴───────────────────────────────┤
 │                       Plugin System                             │
 │              (lifecycle hooks, actions, services)               │
@@ -94,29 +125,35 @@ cd clark/example/convex
 npm install
 ```
 
-### 3. Set up Convex
+### 3. Run the doctor (optional)
 
 ```bash
-npx convex dev
+npm run doctor
 ```
 
-### 4. Configure environment
+### 4. Try demo mode (no API keys needed)
+
+```bash
+npm run demo
+```
+
+### 5. Or configure for full mode
 
 Create `.env.local`:
 
 ```bash
-# Required
+cp .env.example .env.local
+```
+
+Edit with your keys:
+
+```bash
 CONVEX_URL=https://your-project.convex.cloud
-
-# LLM (OpenRouter recommended)
 OPENROUTER_KEY=your_openrouter_api_key
-MODEL_ID=anthropic/claude-3.5-haiku
-
-# Embeddings (Gemini recommended - free tier)
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
-### 5. Run the agent
+Then run:
 
 ```bash
 npm run dev
@@ -181,23 +218,56 @@ agent.use(myPlugin);
 
 ---
 
+## Terminal UI
+
+The SDK includes a terminal-based UI built with React Ink:
+
+```
+┌─────────────────────────────────────────────┐
+│  CLARK - Autonomous Agent                    │
+│  Mood: curious | Health: 78 | Routine: day  │
+├─────────────────────────────────────────────┤
+│      ╭──────────╮                           │
+│      │  ◉    ◉  │                           │
+│      │    ──    │                           │
+│      ╰──────────╯                           │
+└─────────────────────────────────────────────┘
+```
+
+### Keyboard Controls
+
+| Key | Action |
+|-----|--------|
+| `q` | Quit |
+| `r` | Refresh data |
+| `m` | Toggle radio panel |
+| `v` | Toggle view mode |
+| `Ctrl+C` | Force quit |
+
+---
+
 ## Repository Structure
 
 ```
-ClarkOS/
+clark/
+├── README.md
+├── docs/                    # Audit documentation
+├── scripts/
+│   └── doctor.js            # Preflight validation
 └── example/
     └── convex/              # Reference implementation
-        ├── convex/          # Convex backend (schema, mutations, queries)
+        ├── .env.example     # Environment template
+        ├── convex/          # Convex backend
         ├── src/
-        │   ├── core/        # Agent runtime, tick system, config
+        │   ├── core/        # Agent runtime, tick system
         │   ├── memory/      # Memory store, deduplication
         │   ├── knowledge/   # Knowledge base
         │   ├── plugins/     # Plugin system
         │   ├── llm/         # LLM & embedding clients
-        │   ├── services/    # Background services (news, market, social)
+        │   ├── services/    # Background services
         │   ├── templates/   # Prompt templates
         │   └── ui/          # Terminal UI (Ink + React)
-        └── tests/           # 179 tests across 7 modules
+        └── tests/           # 179 tests
 ```
 
 ---
@@ -212,29 +282,11 @@ The Convex backend exposes HTTP endpoints:
 | `/state` | GET | Current agent state |
 | `/memories` | GET | List memories (filter by type, scope) |
 | `/memories` | POST | Store memory (with deduplication) |
-| `/memories/search` | GET | Semantic search |
+| `/memories/core` | GET | Core consolidated memories |
 | `/memories/stats` | GET | Memory statistics |
 | `/knowledge` | GET | List knowledge items |
 | `/knowledge` | POST | Add knowledge |
 | `/logs` | GET | Activity logs |
-
----
-
-## Convex as State Machine
-
-ClarkOS treats Convex as the **single source of truth** for agent state:
-
-1. **Persistent**: All state changes are durable
-2. **Transactional**: ACID mutations ensure consistency
-3. **Reactive**: Real-time subscriptions for state changes
-4. **Scalable**: Serverless infrastructure scales automatically
-5. **Queryable**: Vector search for semantic memory retrieval
-
-```
-Agent Instance → fetch("/state") → Compute new state → Convex mutation → Database
-                                                                          ↑
-                                                          Single source of truth
-```
 
 ---
 
@@ -243,7 +295,7 @@ Agent Instance → fetch("/state") → Compute new state → Convex mutation →
 ### LLM Providers
 
 ```bash
-# OpenRouter (recommended - best routing, many models)
+# OpenRouter (recommended)
 LLM_PROVIDER=openrouter
 OPENROUTER_KEY=your_key
 
@@ -254,20 +306,16 @@ OPENAI_API_KEY=your_key
 # Anthropic
 LLM_PROVIDER=anthropic
 ANTHROPIC_API_KEY=your_key
-
-# Custom endpoint
-LLM_PROVIDER=custom
-LLM_BASE_URL=https://your-endpoint.com/v1/chat/completions
 ```
 
 ### Embedding Providers
 
 ```bash
-# Gemini (recommended - free tier, 768 dimensions)
+# Gemini (recommended - free tier)
 EMBEDDING_PROVIDER=gemini
 GEMINI_API_KEY=your_key
 
-# OpenAI (1536 dimensions)
+# OpenAI
 EMBEDDING_PROVIDER=openai
 OPENAI_API_KEY=your_key
 ```
@@ -275,8 +323,6 @@ OPENAI_API_KEY=your_key
 ---
 
 ## Testing
-
-The framework includes comprehensive tests:
 
 ```bash
 cd example/convex
@@ -296,37 +342,24 @@ npm test
 
 ## Roadmap
 
-**Implemented**:
+### Implemented (SDK)
+
 - Agent runtime with tick-based execution
 - 5 memory types with type-specific deduplication
 - Plugin system with lifecycle hooks
 - Multi-provider LLM integration
 - Embedding-based semantic search
 - Terminal UI with ASCII visualization
-- Comprehensive test suite
+- Comprehensive test suite (179 tests)
+- Doctor script for environment validation
 
-**Coming Soon**:
-- Memory linking (7 relationship types)
-- Memory consolidation into core memories
-- Self-reflection and brilliance detection
+### Coming Soon
+
+- Memory linking (schema ready, 7 relationship types)
+- Memory consolidation (schema ready)
 - Full consciousness synthesis layer
+- HTTP endpoints for reflection/consciousness
 - Multi-agent coordination
-
----
-
-## The Vision
-
-- **Convex as backbone**: Realtime state + events in one place → less glue code, fewer services, faster deployment
-
-- **Agents as nodes**: Independent, composable, networkable
-
-- **This repo**: Foundation + reference implementation of a ClarkOS node
-
----
-
-## Live Demo
-
-See CLARK V2 in action: [clark.wiki](https://clark.wiki)
 
 ---
 
@@ -335,22 +368,16 @@ See CLARK V2 in action: [clark.wiki](https://clark.wiki)
 - **Docs Site**: [docs.clarkos.dev](https://docs.clarkos.dev)
 - **Docs Repo**: [github.com/clarkOS/docs](https://github.com/clarkOS/docs)
 
-Guides:
-- [Quickstart](/quickstart)
-- [Core Concepts](/concepts/agents)
-- [Memory System](/concepts/memory)
-- [Tick System](/concepts/tick-system)
-- [Plugin Development](/guides/custom-plugins)
-- [API Reference](/api-reference/introduction)
-
 ---
 
 ## Links
 
-- **GitHub**: [github.com/clarkOS/clark](https://github.com/clarkOS/clark)
-- **Docs**: [docs.clarkos.dev](https://docs.clarkos.dev)
-- **Live Demo**: [clark.wiki](https://clark.wiki)
-- **X**: [@clarkwiki](https://x.com/clarkwiki)
+| Resource | URL |
+|----------|-----|
+| GitHub | [github.com/clarkOS/clark](https://github.com/clarkOS/clark) |
+| Documentation | [docs.clarkos.dev](https://docs.clarkos.dev) |
+| Live Demo | [clark.wiki](https://clark.wiki) |
+| X / Twitter | [@clarkwiki](https://x.com/clarkwiki) |
 
 ---
 
