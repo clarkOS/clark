@@ -1,10 +1,11 @@
 # ClarkOS
 
-**always on. always learning.**
-
 A minimal agent runtime built around state—not endpoints. ClarkOS uses [Convex](https://convex.dev) as the state machine, cutting out the traditional API layer so agents can deploy fast, stay online, and scale into a network of nodes.
 
-**C**ontinuously **L**earning **A**gentic **R**ealtime **K**nowledgebase **OS**
+**C**ontinuously **L**earning **A**gentic **R**ealtime **K**nowledgebase
+
+**always on. always learning.**
+
 
 [Live Demo](https://clark.wiki) · [Docs](https://docs.clarkos.dev) · [X](https://x.com/clarkwiki)
 
