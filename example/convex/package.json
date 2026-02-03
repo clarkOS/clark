@@ -1,0 +1,60 @@
+{
+  "name": "@convex-agent/core",
+  "version": "0.1.0",
+  "description": "Serverless autonomous agent framework powered by Convex",
+  "author": "CLARK Team",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "convex-agent": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "tsx src/cli.tsx --url https://combative-okapi-755.convex.site",
+    "demo": "tsx src/cli.tsx --demo",
+    "cli": "tsx src/cli.tsx",
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
+  },
+  "dependencies": {
+    "ink": "^4.4.1",
+    "react": "^18.2.0",
+    "convex": "^1.17.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  },
+  "keywords": [
+    "agent",
+    "autonomous",
+    "convex",
+    "serverless",
+    "ai",
+    "framework"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/convex-agent"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
