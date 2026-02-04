@@ -1,8 +1,6 @@
 # ClarkOS
 
-**always on. always learning.**
-
-Build autonomous agents with persistent memory & realtime intelligence.
+<img src="clark.png" alt="ClarkOS" width="600" />
 
 **C**ontinuously **L**earning **A**gentic **R**ealtime **K**nowledgebase **OS**
 
