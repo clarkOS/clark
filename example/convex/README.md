@@ -1,67 +1,147 @@
-# ClarkOS Agent Framework
+# ClarkOS Example Agent
+
+<img src="../../clark.png" alt="ClarkOS" width="600" />
 
 **C**ontinuously **L**earning **A**gentic **R**ealtime **K**nowledgebase
 
-A serverless autonomous agent framework powered by [Convex](https://convex.dev). Build agents that operate continuously, generate creative output, and maintain persistent presence.
+[![GitHub stars](https://img.shields.io/github/stars/clarkOS/clark?style=social)](https://github.com/clarkOS/clark)
+[![Live Demo](https://img.shields.io/badge/demo-clark.wiki-blue)](https://clark.wiki)
+[![Docs](https://img.shields.io/badge/docs-clarkos.dev-green)](https://docs.clarkos.dev)
+[![Twitter](https://img.shields.io/twitter/follow/clarkwiki?style=social)](https://x.com/clarkwiki)
+
+A serverless autonomous agent framework powered by [Convex](https://convex.dev). Build agents that operate continuously, maintain persistent memory, and evolve through autonomous tick cycles.
+
+---
+
+## One-Click AI Setup
+
+Copy this prompt into **Claude Code**, **Cursor**, **Windsurf**, or any AI coding assistant:
+
+<details>
+<summary><b>Click to expand prompt</b></summary>
+
+```
+Set up ClarkOS - an autonomous agent framework with persistent memory.
+
+## Repository
+Clone: https://github.com/clarkOS/clark
+Docs: https://docs.clarkos.dev
+
+## Steps
+1. git clone https://github.com/clarkOS/clark && cd clark/example/convex
+2. npm install
+3. npm run doctor (validate environment)
+4. npm run demo (no API keys needed)
+
+## For Full Mode
+Create .env.local with:
+- CONVEX_URL=https://your-project.convex.cloud (run: npx convex dev)
+- OPENROUTER_KEY=your-key (from openrouter.ai)
+- GEMINI_API_KEY=your-key (from aistudio.google.com/apikey - free)
+
+Then: npm run dev
+
+## Architecture
+- Runtime: Node.js 18+ TypeScript
+- Backend: Convex serverless (realtime, transactional)
+- LLM: OpenRouter/OpenAI/Anthropic
+- Embeddings: Gemini (free) or OpenAI
+- UI: React Ink terminal
+
+## Core Concepts
+- Tick System: Continuous heartbeat execution (not request-response)
+- 5 Memory Types: episodic (0.92), semantic (0.95), emotional (0.88), procedural (0.97), reflection (0.90) - numbers are dedup thresholds
+- Agent State: mood, health (0-100), routine (morning/day/evening/overnight), volatility, cryo
+- Plugin System: lifecycle hooks (init, cleanup, onTick)
+
+## Key Files
+- src/core/agent.ts - Agent runtime
+- src/core/tick.ts - Tick execution
+- src/memory/store.ts - Memory operations
+- src/memory/deduplication.ts - Similarity checks
+- src/plugins/loader.ts - Plugin system
+- convex/schema.ts - Database schema
+- convex/http.ts - API endpoints
+
+## API Endpoints
+GET /health, /state, /memories, /memories/core, /memories/stats, /knowledge, /logs
+POST /memories, /knowledge
+
+## Basic Usage
+import { Agent, ConvexBackend } from './src';
+const agent = new Agent({ backend: new ConvexBackend({ url: process.env.CONVEX_URL! }) });
+await agent.tick();
+
+## Plugin Example
+const plugin = { name: 'my-plugin', version: '1.0.0', onTick(ctx) { console.log(ctx.state.mood); } };
+agent.use(plugin);
+
+## Tests
+npm test (179 tests across 7 modules)
+
+Help me get this running and explore the codebase.
+```
+
+</details>
+
+---
 
 ## Features
 
-- **Generative Architecture**: Continuous tick-based execution, not request-response
+- **Tick-Based Execution**: Continuous heartbeat, not request-response
 - **5 Memory Types**: Episodic, semantic, emotional, procedural, reflection
-- **Type-Specific Deduplication**: Different similarity thresholds per memory type
-- **Configurable LLM**: OpenRouter by default, no vendor lock-in
-- **Serverless**: Runs on Convex with automatic scaling
-- **Plugin System**: Extend with lifecycle hooks and actions
-- **Full TypeScript**: Type-safe throughout
+- **Type-Specific Deduplication**: Tuned similarity thresholds per memory type
+- **Multi-Provider LLM**: OpenRouter, OpenAI, Anthropic, or custom
+- **Convex Backend**: Realtime, transactional, serverless
+- **Plugin System**: Lifecycle hooks and callable actions
+- **Terminal UI**: React Ink interface
+- **179 Tests**: Comprehensive test coverage
+
+---
 
 ## Quick Start
 
-### 1. Clone the repository
+### 1. Clone & Install
 
 ```bash
-git clone https://github.com/cloutprotocol/clarkos my-agent
-cd my-agent
-```
-
-### 2. Install dependencies
-
-```bash
+git clone https://github.com/clarkOS/clark
+cd clark/example/convex
 npm install
 ```
 
-### 3. Set up Convex
+### 2. Validate Environment
 
 ```bash
-npx convex dev
+npm run doctor
 ```
 
-This creates a new Convex project and starts the development server.
-
-### 4. Configure environment
-
-Create `.env.local`:
+### 3. Try Demo Mode (No API Keys)
 
 ```bash
-# Required
+npm run demo
+```
+
+### 4. Or Configure Full Mode
+
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local`:
+
+```bash
 CONVEX_URL=https://your-project.convex.cloud
-
-# LLM Configuration (OpenRouter recommended)
 OPENROUTER_KEY=your_openrouter_api_key
-MODEL_ID=anthropic/claude-3.5-haiku
-
-# Embeddings (Gemini recommended - free tier)
 GEMINI_API_KEY=your_gemini_api_key
-
-# Optional auth tokens
-TICK_TOKEN=your_tick_token
-WRITE_TOKEN=your_write_token
 ```
 
-### 5. Run the agent
+Run:
 
 ```bash
 npm run dev
 ```
+
+---
 
 ## Usage
 
@@ -73,142 +153,134 @@ import { Agent, ConvexBackend } from './src';
 const agent = new Agent({
   backend: new ConvexBackend({
     url: process.env.CONVEX_URL!,
-    tickToken: process.env.TICK_TOKEN,
   }),
 });
 
 // Execute a single tick
 await agent.tick();
 
-// Start continuous execution
-agent.start();
-
-// Stop execution
-agent.stop();
-
 // Get current state
 const state = await agent.getState();
+console.log(`Mood: ${state.mood}, Health: ${state.health}`);
 ```
 
 ### Memory Operations
 
 ```typescript
-const memoryStore = agent.memory;
-
-// Store a memory
-await memoryStore.store({
-  content: 'User expressed interest in AI agents',
+// Store a memory (with automatic deduplication)
+await agent.memory.store({
+  content: 'Discovered a new pattern in user behavior',
   type: 'episodic',
   importance: 0.7,
-  tags: ['user-feedback', 'positive'],
+  tags: ['insight', 'users'],
 });
 
-// Query memories
-const memories = await memoryStore.get({
-  type: 'semantic',
-  limit: 10,
-});
-
-// Search semantically
-const results = await memoryStore.search({
-  query: 'AI agents',
+// Semantic search
+const results = await agent.memory.search({
+  query: 'user behavior patterns',
   limit: 5,
 });
-```
-
-### LLM Integration
-
-```typescript
-import { createLLMClient, configFromEnv } from './src/llm';
-
-// Create client from environment
-const llm = createLLMClient(configFromEnv());
-
-// Simple completion
-const response = await llm.ask(
-  'What is the weather like?',
-  'You are a helpful assistant.'
-);
-
-// Chat completion
-const result = await llm.complete([
-  { role: 'system', content: 'You are a helpful assistant.' },
-  { role: 'user', content: 'What is the weather like?' },
-]);
-
-console.log(result.content);
-```
-
-### Embeddings
-
-```typescript
-import { createEmbeddingClient, embeddingConfigFromEnv, cosineSimilarity } from './src/llm';
-
-const embedder = createEmbeddingClient(embeddingConfigFromEnv());
-
-// Generate embedding
-const result = await embedder.embed('Hello world');
-console.log(result.embedding.length); // 768 for Gemini
-
-// Compare embeddings
-const similarity = cosineSimilarity(embedding1, embedding2);
 ```
 
 ### Plugins
 
 ```typescript
-import type { Plugin, TickContext } from './src/plugins';
+import type { Plugin } from './src/plugins';
 
-const analyticsPlugin: Plugin = {
-  name: 'analytics',
+const myPlugin: Plugin = {
+  name: 'logger',
   version: '1.0.0',
 
   init(agent) {
-    console.log('Analytics initialized');
+    console.log('Plugin initialized');
   },
 
-  onTick(context: TickContext) {
-    console.log(`Tick: mood=${context.state.mood}, health=${context.state.health}`);
-  },
-
-  actions: {
-    async trackEvent(params: { event: string }) {
-      // Track event
-      return { success: true };
-    },
+  onTick(context) {
+    console.log(`Mood: ${context.state.mood}, Health: ${context.state.health}`);
   },
 };
 
-agent.use(analyticsPlugin);
-await agent.executeAction('analytics', 'trackEvent', { event: 'test' });
+agent.use(myPlugin);
 ```
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Agent Runtime                            │
+├────────────────┬────────────────┬───────────────────────────────┤
+│   Tick System  │  Memory System │      Knowledge Base           │
+│   (heartbeat)  │   (5 types)    │    (facts, news, notes)       │
+├────────────────┼────────────────┼───────────────────────────────┤
+│      LLM       │   Embeddings   │      Deduplication            │
+│ (multi-provider) │  (semantic)   │  (type-specific thresholds)   │
+├────────────────┴────────────────┴───────────────────────────────┤
+│                       Plugin System                             │
+│              (lifecycle hooks, actions, services)               │
+├─────────────────────────────────────────────────────────────────┤
+│                  Convex (State Machine)                         │
+│        realtime data + events + durable state                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Memory Types
+
+| Type | Purpose | Dedup Threshold |
+|------|---------|-----------------|
+| `episodic` | Events and experiences | 0.92 |
+| `semantic` | Facts and concepts | 0.95 |
+| `emotional` | Feelings about topics | 0.88 |
+| `procedural` | Learned patterns | 0.97 |
+| `reflection` | Metacognitive insights | 0.90 |
+
+### Agent State
+
+```typescript
+interface AgentState {
+  mood: 'neutral' | 'expressive' | 'curious' | 'excited' | 'reflective' | 'concerned';
+  health: number;      // 0-100, drifts toward equilibrium
+  routine: 'morning' | 'day' | 'evening' | 'overnight';
+  volatility: number;  // 0-1, behavioral variance
+  cryo: boolean;       // hibernation mode
+}
+```
+
+---
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check |
+| `/state` | GET | Current agent state |
+| `/memories` | GET | List memories |
+| `/memories` | POST | Store memory |
+| `/memories/core` | GET | Core memories |
+| `/memories/stats` | GET | Memory statistics |
+| `/knowledge` | GET | List knowledge |
+| `/knowledge` | POST | Add knowledge |
+| `/logs` | GET | Activity logs |
+
+---
 
 ## Configuration
 
 ### LLM Providers
 
-Configure via environment variables:
-
 ```bash
-# OpenRouter (recommended - best routing, many models)
+# OpenRouter (recommended)
 LLM_PROVIDER=openrouter
 OPENROUTER_KEY=your_key
-MODEL_ID=anthropic/claude-3.5-haiku
 
 # OpenAI
 LLM_PROVIDER=openai
 OPENAI_API_KEY=your_key
-MODEL_ID=gpt-4o-mini
 
 # Anthropic
 LLM_PROVIDER=anthropic
 ANTHROPIC_API_KEY=your_key
-MODEL_ID=claude-3-5-haiku-latest
-
-# Custom endpoint
-LLM_PROVIDER=custom
-LLM_BASE_URL=https://your-endpoint.com/v1/chat/completions
-LLM_API_KEY=your_key
 ```
 
 ### Embedding Providers
@@ -221,121 +293,64 @@ GEMINI_API_KEY=your_key
 # OpenAI
 EMBEDDING_PROVIDER=openai
 OPENAI_API_KEY=your_key
-EMBEDDING_MODEL=text-embedding-3-small
 ```
 
-### Agent Configuration
+---
 
-```typescript
-import { createConfig } from './src/core';
-
-const config = createConfig({
-  tick: {
-    interval: 300000,  // 5 minutes
-    auto: false,       // Manual trigger only
-    maxRetries: 3,
-  },
-  memory: {
-    consolidationThreshold: 100,
-    decayRate: 0.1,
-    maxShortTerm: 50,
-  },
-});
-
-const agent = new Agent({ backend, config });
-```
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Agent Runtime                         │
-├──────────────┬──────────────┬──────────────────────────┤
-│    Tick      │   Memory     │       Knowledge          │
-│   System     │   System     │         Base             │
-│              │  (5 types)   │                          │
-├──────────────┼──────────────┼──────────────────────────┤
-│     LLM      │  Embeddings  │      Deduplication       │
-│   (OpenRouter)│   (Gemini)   │   (Type-specific)        │
-├──────────────┴──────────────┴──────────────────────────┤
-│                    Plugin System                        │
-├─────────────────────────────────────────────────────────┤
-│              Backend (Convex Serverless)                │
-└─────────────────────────────────────────────────────────┘
-```
-
-### Memory Types
-
-| Type | Description | Dedup Threshold |
-|------|-------------|-----------------|
-| `episodic` | Specific events and experiences | 0.92 |
-| `semantic` | Facts and concepts | 0.95 |
-| `emotional` | Feelings about topics | 0.88 |
-| `procedural` | Learned patterns | 0.97 |
-| `reflection` | Metacognitive insights | 0.90 |
-
-### Agent State
-
-```typescript
-interface AgentState {
-  mood: 'neutral' | 'expressive' | 'curious' | 'excited' | 'reflective' | 'concerned';
-  health: number;      // 0-100
-  routine: 'morning' | 'day' | 'evening' | 'overnight';
-  volatility: number;  // 0-1
-  counters: { ticks: number; feeds: number };
-  lastTick: string | null;
-  cryo: boolean;
-}
-```
-
-## API Endpoints
-
-The Convex backend exposes HTTP endpoints:
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/state` | GET | Get agent state |
-| `/memories` | GET | List memories |
-| `/memories` | POST | Store memory |
-| `/memories/stats` | GET | Memory statistics |
-| `/memories/core` | GET | Core memories |
-| `/knowledge` | GET | List knowledge |
-| `/knowledge` | POST | Add knowledge |
-| `/logs` | GET | Activity logs |
-| `/health` | GET | Health check |
-
-## Deployment
-
-### Convex (Recommended)
+## Testing
 
 ```bash
-# Deploy to Convex
-npx convex deploy
-
-# Set environment variables in Convex dashboard
+npm test
 ```
 
-### Environment Variables
+**179 tests** across 7 modules:
+- `core/tick` - Tick system (25 tests)
+- `core/config` - Configuration (22 tests)
+- `memory/deduplication` - Deduplication logic (34 tests)
+- `backend/memory` - Backend operations (22 tests)
+- `plugins/loader` - Plugin system (26 tests)
+- `llm/embeddings` - Embeddings (32 tests)
+- `services/news` - Services (21 tests)
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `CONVEX_URL` | Convex deployment URL | Yes |
-| `OPENROUTER_KEY` | OpenRouter API key | Yes (for LLM) |
-| `GEMINI_API_KEY` | Gemini API key | Yes (for embeddings) |
-| `TICK_TOKEN` | Auth token for tick endpoint | No |
-| `WRITE_TOKEN` | Auth token for write endpoints | No |
-| `MODEL_ID` | LLM model identifier | No |
-| `LLM_PROVIDER` | LLM provider (openrouter/openai/anthropic) | No |
-| `EMBEDDING_PROVIDER` | Embedding provider (gemini/openai) | No |
+---
 
-## Documentation
+## Project Structure
 
-Full documentation at [docs.clarkos.dev](https://docs.clarkos.dev)
+```
+convex/                  # Convex backend
+├── schema.ts            # Database schema
+├── http.ts              # HTTP endpoints
+├── state.ts             # State queries/mutations
+├── memories.ts          # Memory operations
+├── knowledge.ts         # Knowledge operations
+└── logs.ts              # Logging
 
-- [Getting Started](/quickstart)
-- [Core Concepts](/concepts/agents)
-- [Memory System](/concepts/memory)
-- [Plugin Development](/guides/custom-plugins)
+src/
+├── cli.tsx              # CLI entry point
+├── core/                # Agent runtime, tick system
+├── memory/              # Memory store, deduplication
+├── knowledge/           # Knowledge base
+├── plugins/             # Plugin system
+├── llm/                 # LLM & embedding clients
+├── services/            # Background services
+├── templates/           # Prompt templates
+└── ui/                  # Terminal UI (Ink + React)
+
+tests/                   # Jest tests (179 total)
+```
+
+---
+
+## Links
+
+| Resource | URL |
+|----------|-----|
+| GitHub | [github.com/clarkOS/clark](https://github.com/clarkOS/clark) |
+| Documentation | [docs.clarkos.dev](https://docs.clarkos.dev) |
+| Live Demo | [clark.wiki](https://clark.wiki) |
+| X / Twitter | [@clarkwiki](https://x.com/clarkwiki) |
+
+---
 
 ## License
 
