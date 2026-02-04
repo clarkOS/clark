@@ -2,9 +2,12 @@
 
 <img src="clark.png" alt="ClarkOS" width="600" />
 
-**C**ontinuously **L**earning **A**gentic **R**ealtime **K**nowledgebase **OS**
+**C**ontinuously **L**earning **A**gentic **R**ealtime **K**nowledgebase
 
-[Live Demo](https://clark.wiki) · [Docs](https://docs.clarkos.dev) · [X](https://x.com/clarkwiki)
+[![GitHub stars](https://img.shields.io/github/stars/clarkOS/clark?style=social)](https://github.com/clarkOS/clark)
+[![Live Demo](https://img.shields.io/badge/demo-clark.wiki-blue)](https://clark.wiki)
+[![Docs](https://img.shields.io/badge/docs-clarkos.dev-green)](https://docs.clarkos.dev)
+[![Twitter](https://img.shields.io/twitter/follow/clarkwiki?style=social)](https://x.com/clarkwiki)
 
 ---
 
