@@ -11,6 +11,79 @@
 
 ---
 
+## One-Click AI Setup
+
+Copy this prompt into **Claude Code**, **Cursor**, **Windsurf**, or any AI coding assistant:
+
+<details>
+<summary><b>Click to expand prompt</b></summary>
+
+```
+Set up ClarkOS - an autonomous agent framework with persistent memory.
+
+## Repository
+Clone: https://github.com/clarkOS/clark
+Docs: https://docs.clarkos.dev
+
+## Steps
+1. git clone https://github.com/clarkOS/clark && cd clark/example/convex
+2. npm install
+3. npm run doctor (validate environment)
+4. npm run demo (no API keys needed)
+
+## For Full Mode
+Create .env.local with:
+- CONVEX_URL=https://your-project.convex.cloud (run: npx convex dev)
+- OPENROUTER_KEY=your-key (from openrouter.ai)
+- GEMINI_API_KEY=your-key (from aistudio.google.com/apikey - free)
+
+Then: npm run dev
+
+## Architecture
+- Runtime: Node.js 18+ TypeScript
+- Backend: Convex serverless (realtime, transactional)
+- LLM: OpenRouter/OpenAI/Anthropic
+- Embeddings: Gemini (free) or OpenAI
+- UI: React Ink terminal
+
+## Core Concepts
+- Tick System: Continuous heartbeat execution (not request-response)
+- 5 Memory Types: episodic (0.92), semantic (0.95), emotional (0.88), procedural (0.97), reflection (0.90) - numbers are dedup thresholds
+- Agent State: mood, health (0-100), routine (morning/day/evening/overnight), volatility, cryo
+- Plugin System: lifecycle hooks (init, cleanup, onTick)
+
+## Key Files
+- src/core/agent.ts - Agent runtime
+- src/core/tick.ts - Tick execution
+- src/memory/store.ts - Memory operations
+- src/memory/deduplication.ts - Similarity checks
+- src/plugins/loader.ts - Plugin system
+- convex/schema.ts - Database schema
+- convex/http.ts - API endpoints
+
+## API Endpoints
+GET /health, /state, /memories, /memories/core, /memories/stats, /knowledge, /logs
+POST /memories, /knowledge
+
+## Basic Usage
+import { Agent, ConvexBackend } from './src';
+const agent = new Agent({ backend: new ConvexBackend({ url: process.env.CONVEX_URL! }) });
+await agent.tick();
+
+## Plugin Example
+const plugin = { name: 'my-plugin', version: '1.0.0', onTick(ctx) { console.log(ctx.state.mood); } };
+agent.use(plugin);
+
+## Tests
+npm test (179 tests across 7 modules)
+
+Help me get this running and explore the codebase.
+```
+
+</details>
+
+---
+
 ## What is ClarkOS?
 
 ClarkOS is a minimal agent runtime built around state—not endpoints. It uses [Convex](https://convex.dev) as the state machine, cutting out the traditional API layer so agents can deploy fast, stay online, and scale into a network of nodes.
