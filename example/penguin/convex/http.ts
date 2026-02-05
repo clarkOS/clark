@@ -164,6 +164,87 @@ router.route({
 });
 
 // =============================================================================
+// Book Tracking Endpoints (Scaling Best Practices)
+// =============================================================================
+
+router.route({
+  path: "/books/is-ingested",
+  method: "GET",
+  handler: httpAction(async (ctx, req) => {
+    const url = new URL(req.url);
+    const identifier = url.searchParams.get("identifier");
+
+    if (!identifier) {
+      return json({ error: "identifier required" }, 400);
+    }
+
+    const isIngested = await ctx.runQuery(api.books.isBookIngested, { identifier });
+    return json(isIngested);
+  }),
+});
+
+router.route({
+  path: "/books/metadata",
+  method: "GET",
+  handler: httpAction(async (ctx, req) => {
+    const url = new URL(req.url);
+    const identifier = url.searchParams.get("identifier");
+
+    if (!identifier) {
+      return json({ error: "identifier required" }, 400);
+    }
+
+    const metadata = await ctx.runQuery(api.books.getBookMetadata, { identifier });
+    return json(metadata);
+  }),
+});
+
+router.route({
+  path: "/books/list",
+  method: "GET",
+  handler: httpAction(async (ctx, req) => {
+    const url = new URL(req.url);
+    const pluginName = url.searchParams.get("plugin") || "nietzsche";
+    const limit = Number(url.searchParams.get("limit") || 100);
+
+    const books = await ctx.runQuery(api.books.listIngestedBooks, {
+      pluginName,
+      limit,
+    });
+    return json(books);
+  }),
+});
+
+router.route({
+  path: "/books/record",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const body = await req.json().catch(() => ({}));
+
+    if (!body.identifier || !body.title || !body.source || !body.pluginName) {
+      return json({ error: "identifier, title, source, and pluginName required" }, 400);
+    }
+
+    const id = await ctx.runMutation(api.books.recordIngestion, body);
+    return json({ id });
+  }),
+});
+
+router.route({
+  path: "/books/stats",
+  method: "GET",
+  handler: httpAction(async (ctx, req) => {
+    const url = new URL(req.url);
+    const pluginName = url.searchParams.get("plugin");
+
+    const stats = await ctx.runQuery(api.books.getIngestionStats, {
+      pluginName: pluginName || undefined,
+    });
+    return json(stats);
+  }),
+});
+
+// =============================================================================
 // Log Endpoints
 // =============================================================================
 

@@ -74,9 +74,10 @@ export const nietzschePlugin: Plugin = {
 
     /**
      * Ingest a Nietzsche book into Convex vector store
+     * Idempotent - checks if already ingested
      */
     async ingest(params: Record<string, unknown>, agent: Agent) {
-      const { bookIdentifier } = params;
+      const { bookIdentifier, force = false } = params;
 
       if (!bookIdentifier || typeof bookIdentifier !== 'string') {
         throw new Error('bookIdentifier is required');
@@ -85,6 +86,42 @@ export const nietzschePlugin: Plugin = {
       const book = NIETZSCHE_BOOKS.find((b) => b.identifier === bookIdentifier);
       if (!book) {
         throw new Error(`Book not found: ${bookIdentifier}`);
+      }
+
+      // Check if already ingested (unless force=true)
+      if (!force) {
+        try {
+          const baseUrl = process.env.CONVEX_URL?.replace('.convex.cloud', '.convex.site');
+          const response = await fetch(
+            `${baseUrl}/books/is-ingested?identifier=${encodeURIComponent(bookIdentifier)}`
+          );
+
+          if (response.ok) {
+            const alreadyIngested = await response.json();
+            if (alreadyIngested) {
+              console.log(`ℹ️  "${book.title}" already ingested. Use force=true to re-ingest.`);
+
+              // Get existing metadata
+              const baseUrl = process.env.CONVEX_URL?.replace('.convex.cloud', '.convex.site');
+              const metaResponse = await fetch(
+                `${baseUrl}/books/metadata?identifier=${encodeURIComponent(bookIdentifier)}`
+              );
+
+              if (metaResponse.ok) {
+                const metadata = await metaResponse.json();
+                return {
+                  success: true,
+                  alreadyIngested: true,
+                  book: book.title,
+                  chunks: metadata?.chunkCount || 0,
+                  ingestedAt: metadata?.ingestedAt ? new Date(metadata.ingestedAt).toISOString() : null,
+                };
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('Could not check ingestion status, proceeding anyway:', error);
+        }
       }
 
       console.log(`📚 Ingesting "${book.title}" from archive.org...`);
@@ -97,7 +134,8 @@ export const nietzschePlugin: Plugin = {
         }
 
         const text = await response.text();
-        console.log(`📄 Downloaded ${Math.round(text.length / 1024)}KB`);
+        const sizeBytes = text.length;
+        console.log(`📄 Downloaded ${Math.round(sizeBytes / 1024)}KB`);
 
         // Clean and chunk the text
         const chunks = chunkText(text, 500); // 500 words per chunk
@@ -105,6 +143,8 @@ export const nietzschePlugin: Plugin = {
 
         // Store each chunk as a semantic memory with embeddings
         let stored = 0;
+        const errors: string[] = [];
+
         for (let i = 0; i < chunks.length; i++) {
           const chunk = chunks[i];
 
@@ -117,7 +157,7 @@ export const nietzschePlugin: Plugin = {
               salience: 0.7,
               valence: 0.0,
               confidence: 1.0,
-              tags: ['nietzsche', book.title.toLowerCase().replace(/\s+/g, '-'), 'philosophy'],
+              tags: ['nietzsche', book.title.toLowerCase().replace(/\s+/g, '-'), 'philosophy', book.identifier],
               sourceType: 'book',
               metadata: {
                 book: book.title,
@@ -132,17 +172,51 @@ export const nietzschePlugin: Plugin = {
               console.log(`  📝 Stored ${stored}/${chunks.length} chunks...`);
             }
           } catch (error) {
-            console.error(`Failed to store chunk ${i}:`, error);
+            const errorMsg = `Failed to store chunk ${i}: ${error}`;
+            console.error(errorMsg);
+            errors.push(errorMsg);
           }
+        }
+
+        // Record ingestion in tracking table
+        try {
+          const baseUrl = process.env.CONVEX_URL?.replace('.convex.cloud', '.convex.site');
+          const recordResponse = await fetch(
+            `${baseUrl}/books/record`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                identifier: book.identifier,
+                title: book.title,
+                source: 'archive.org',
+                pluginName: 'nietzsche',
+                chunkCount: stored,
+                sizeBytes,
+                metadata: {
+                  url: book.url,
+                  errors: errors.length > 0 ? errors : undefined,
+                },
+              }),
+            }
+          );
+
+          if (!recordResponse.ok) {
+            console.warn('Failed to record ingestion metadata');
+          }
+        } catch (error) {
+          console.warn('Failed to record ingestion:', error);
         }
 
         console.log(`✅ Ingested "${book.title}" - ${stored}/${chunks.length} chunks stored`);
 
         return {
           success: true,
+          alreadyIngested: false,
           book: book.title,
           chunks: stored,
           totalChunks: chunks.length,
+          errors: errors.length > 0 ? errors : undefined,
         };
       } catch (error) {
         console.error('❌ Ingestion failed:', error);
@@ -152,6 +226,7 @@ export const nietzschePlugin: Plugin = {
 
     /**
      * Ask a question and get relevant passages using vector search
+     * Uses .take() instead of .collect() for scaling
      */
     async ask(params: Record<string, unknown>, agent: Agent) {
       const { question, limit = 3 } = params;
@@ -164,9 +239,10 @@ export const nietzschePlugin: Plugin = {
 
       try {
         // Search for relevant passages using semantic search
+        // Backend should use .take() instead of .collect()
         const results = await agent.memory.search({
           query: question,
-          limit: limit as number,
+          limit: Math.min(limit as number, 10), // Cap at 10 for performance
           type: 'semantic',
           tags: ['nietzsche'],
         });
@@ -200,15 +276,18 @@ export const nietzschePlugin: Plugin = {
 
     /**
      * Get a random passage from Nietzsche's works
+     * Uses .take() with limit to avoid loading everything
      */
     async getPassage(params: Record<string, unknown>, agent: Agent) {
       const { book } = params;
 
       try {
-        // Get all Nietzsche memories
+        // Use .take() instead of loading all - much faster at scale
+        // Get a reasonable sample, not everything
+        const sampleSize = 50;
         const allMemories = await agent.memory.search({
           query: '',
-          limit: 100,
+          limit: sampleSize, // Don't load everything!
           tags: ['nietzsche'],
         });
 
@@ -232,7 +311,7 @@ export const nietzschePlugin: Plugin = {
           };
         }
 
-        // Get random passage
+        // Get random passage from sample
         const randomIndex = Math.floor(Math.random() * filtered.length);
         const memory = filtered[randomIndex];
 
@@ -243,6 +322,29 @@ export const nietzschePlugin: Plugin = {
         };
       } catch (error) {
         console.error('❌ Failed to get passage:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Get ingestion stats
+     * Uses denormalized summary table pattern
+     */
+    async getStats(params: Record<string, unknown>, agent: Agent) {
+      try {
+        const baseUrl = process.env.CONVEX_URL?.replace('.convex.cloud', '.convex.site');
+        const response = await fetch(
+          `${baseUrl}/books/stats?plugin=nietzsche`
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch stats');
+        }
+
+        const stats = await response.json();
+        return stats;
+      } catch (error) {
+        console.error('❌ Failed to get stats:', error);
         throw error;
       }
     },

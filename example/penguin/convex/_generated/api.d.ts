@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as books from "../books.js";
 import type * as http from "../http.js";
 import type * as knowledge from "../knowledge.js";
 import type * as logs from "../logs.js";
@@ -21,6 +22,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  books: typeof books;
   http: typeof http;
   knowledge: typeof knowledge;
   logs: typeof logs;

@@ -147,6 +147,23 @@ export default defineSchema({
     .index("by_type", ["subjectType"]),
 
   // ==========================================================================
+  // Ingested Books (Plugin Tracking)
+  // ==========================================================================
+  ingested_books: defineTable({
+    identifier: v.string(),      // Unique book ID (e.g., archive.org ID)
+    title: v.string(),
+    source: v.string(),          // e.g., "archive.org"
+    pluginName: v.string(),      // e.g., "nietzsche"
+    chunkCount: v.number(),      // Total chunks ingested
+    ingestedAt: v.number(),      // Unix timestamp
+    sizeBytes: v.optional(v.number()),
+    metadata: v.optional(v.any()),
+  })
+    .index("by_identifier", ["identifier"])
+    .index("by_plugin", ["pluginName"])
+    .index("by_source", ["source"]),
+
+  // ==========================================================================
   // Knowledge Base
   // ==========================================================================
   knowledge: defineTable({
