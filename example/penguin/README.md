@@ -33,6 +33,17 @@ Built as a functional example for the [ClarkOS framework](https://github.com/cla
 
 ## Quick Start
 
+### TL;DR - Interactive Chat
+```bash
+npm install
+npx convex dev --once
+npm run nietzsche:chat
+```
+
+Then ask questions like: `ask What is the will to power?`
+
+---
+
 ### 1. Install
 
 ```bash
@@ -70,6 +81,7 @@ This creates the Convex database tables with vector search support.
 
 ### 4. Run Example
 
+**Quick Demo:**
 ```bash
 npm run nietzsche
 ```
@@ -80,6 +92,18 @@ This will:
 3. Ingest "Beyond Good and Evil" (~2 minutes)
 4. Ask a sample question
 5. Get a random passage
+
+**Interactive Q&A:**
+```bash
+npm run nietzsche:chat
+```
+
+This starts an interactive terminal where you can:
+- Ask questions in natural language
+- Get random philosophical passages
+- Ingest multiple books
+- View statistics
+- Explore Nietzsche's ideas conversationally
 
 ---
 
@@ -353,13 +377,71 @@ The Nietzsche Penguin has a unique personality defined in `character.json`:
 
 ## Examples
 
-### Example 1: Quick Q&A
+### Example 1: Quick Demo (Non-Interactive)
 
 ```bash
 npm run nietzsche
 ```
 
-### Example 2: Interactive Agent
+Runs through a complete workflow: list books, ingest, Q&A, random passage.
+
+### Example 2: Interactive Chat Session
+
+```bash
+npm run nietzsche:chat
+```
+
+**Sample Session:**
+```
+🐧 Nietzsche Penguin - Interactive Q&A
+
+════════════════════════════════════════════════════════════
+Ask questions about Nietzsche's philosophy
+Get random passages, ingest books, and explore ideas
+════════════════════════════════════════════════════════════
+
+✓ Connected to Convex
+✓ Found 1 book(s) with 194 passages
+
+🐧 > ask What does Nietzsche say about truth?
+
+💭 "What does Nietzsche say about truth?"
+
+📖 Found 3 relevant passage(s):
+
+─────────────────────────────────────────────────────────────
+📗 Beyond Good and Evil (relevance: 87.3%)
+─────────────────────────────────────────────────────────────
+The will to truth requires a critique—let us thus define
+our own task—the value of truth must for once be
+experimentally called into question...
+
+🐧 > passage
+
+📖 Random passage from Beyond Good and Evil:
+
+─────────────────────────────────────────────────────────────
+One must imagine the penguin happy, waddling boldly into
+the abyss of truth...
+─────────────────────────────────────────────────────────────
+
+🐧 > stats
+
+📊 Ingestion Statistics:
+
+  Total Books: 1
+  Total Passages: 194
+  Total Size: 467.2 KB
+
+  Recent Ingestions:
+    • Beyond Good and Evil (194 passages) - 2/4/2026
+
+🐧 > quit
+
+🐧 "One must imagine the penguin happy."
+```
+
+### Example 3: Agent Dashboard
 
 ```bash
 npm run dev
@@ -367,7 +449,7 @@ npm run dev
 
 Then use the terminal UI to interact with the agent.
 
-### Example 3: Check Before Re-Ingesting
+### Example 4: Check Before Re-Ingesting
 
 ```typescript
 // First run - ingests book
@@ -389,7 +471,7 @@ await agent.executeAction('nietzsche', 'ingest', {
 });
 ```
 
-### Example 4: Get Ingestion Stats
+### Example 5: Get Ingestion Stats
 
 ```typescript
 // Dashboard-friendly summary data
@@ -407,7 +489,7 @@ console.log(stats);
 // }
 ```
 
-### Example 5: Autonomous Agent Integration
+### Example 6: Autonomous Agent Integration
 
 ```typescript
 // Add to your agent's tick cycle

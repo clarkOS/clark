@@ -20,6 +20,7 @@
     "demo": "tsx src/cli.tsx --demo",
     "cli": "tsx src/cli.tsx",
     "nietzsche": "tsx nietzsche-example.ts",
+    "nietzsche:chat": "tsx nietzsche-interactive.ts",
     "build": "tsc",
     "start": "node dist/cli.js",
     "typecheck": "tsc --noEmit",
