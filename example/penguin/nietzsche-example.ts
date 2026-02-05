@@ -51,22 +51,30 @@ async function main() {
   });
   console.log('Ingest result:', ingestResult);
 
-  // Step 5: Ask a question
-  console.log('\n\n💬 Q&A Example:');
+  // Step 5: Ask a question - Nietzsche responds in his own voice
+  console.log('\n\n💬 Q&A Example - Nietzsche speaks:');
   const question = 'What does Nietzsche say about truth?';
   console.log(`Question: ${question}\n`);
 
   const answer = await agent.executeAction('nietzsche', 'ask', {
     question,
-    limit: 3,
+    limit: 5,
   });
 
-  console.log('Answer:');
+  // Display Nietzsche's synthesized response
+  console.log('🐧 Nietzsche\'s Response:');
+  console.log('═'.repeat(60));
+  if (answer && typeof answer === 'object' && 'answer' in answer) {
+    console.log(answer.answer);
+  }
+  console.log('═'.repeat(60));
+
+  // Show source passages
   if (answer && typeof answer === 'object' && 'passages' in answer) {
     const passages = answer.passages as Array<{ text: string; book: string; relevance: number }>;
-    passages.forEach((passage, i) => {
-      console.log(`\n--- Passage ${i + 1} (from ${passage.book}, relevance: ${passage.relevance.toFixed(2)}) ---`);
-      console.log(passage.text.substring(0, 300) + '...');
+    console.log(`\n📚 Based on ${passages.length} passage(s):`);
+    passages.slice(0, 3).forEach((passage, i) => {
+      console.log(`   ${i + 1}. ${passage.book} (${(passage.relevance * 100).toFixed(0)}% relevant)`);
     });
   }
 
