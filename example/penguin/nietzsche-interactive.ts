@@ -23,10 +23,10 @@ const BOOKS = [
 ];
 
 async function main() {
-  console.log('\n🐧 Nietzsche Penguin - Interactive Q&A\n');
+  console.log('\n🐧 Nietzsche Penguin - Interactive Dialogue\n');
   console.log('═'.repeat(60));
-  console.log('Ask questions about Nietzsche\'s philosophy');
-  console.log('Get random passages, ingest books, and explore ideas');
+  console.log('I AM Nietzsche, reborn as a penguin.');
+  console.log('Ask me anything - I will answer in my own voice.');
   console.log('═'.repeat(60) + '\n');
 
   // Initialize agent with Nietzsche plugin
@@ -148,24 +148,27 @@ async function handleAsk(agent: Agent, question: string) {
 
   const result = await agent.executeAction('nietzsche', 'ask', {
     question,
-    limit: 3,
+    limit: 5,
   });
 
-  if (result.passages.length === 0) {
-    console.log('📭 No relevant passages found.');
-    console.log('Try ingesting more books or asking a different question.');
-    return;
-  }
+  // Display Nietzsche's answer
+  console.log(`═════════════════════════════════════════════════════════════`);
+  console.log(`🐧 Nietzsche speaks:`);
+  console.log(`═════════════════════════════════════════════════════════════`);
+  console.log(wrapText(result.answer, 60));
+  console.log(`═════════════════════════════════════════════════════════════\n`);
 
-  console.log(`📖 Found ${result.passages.length} relevant passage(s):\n`);
+  // Show source passages if found
+  if (result.passages && result.passages.length > 0) {
+    console.log(`📚 Based on ${result.passageCount} passage(s) from my works:\n`);
 
-  result.passages.forEach((passage: any, i: number) => {
-    console.log(`─────────────────────────────────────────────────────────────`);
-    console.log(`📗 ${passage.book} (relevance: ${(passage.relevance * 100).toFixed(1)}%)`);
-    console.log(`─────────────────────────────────────────────────────────────`);
-    console.log(wrapText(passage.text, 60));
+    result.passages.slice(0, 3).forEach((passage: any, i: number) => {
+      console.log(`  ${i + 1}. ${passage.book} (${(passage.relevance * 100).toFixed(0)}% relevant)`);
+    });
     console.log();
-  });
+  } else {
+    console.log(`💡 (No exact passages found - answered from philosophical principles)\n`);
+  }
 }
 
 async function handlePassage(agent: Agent, book?: string) {
@@ -250,9 +253,9 @@ function showHelp() {
 Available Commands:
 ──────────────────────────────────────────────────────────
 
-  ask <question>     Ask a philosophical question
-  passage [book]     Get a random passage (optional: filter by book)
-  ingest <number>    Ingest a Nietzsche book (use "books" to see list)
+  ask <question>     Ask me anything - I respond in my own voice
+  passage [book]     Read a random passage from my works
+  ingest <number>    Ingest one of my books (use "books" to see list)
   books              List all available books
   stats              Show ingestion statistics
   help               Show this help message
@@ -277,7 +280,9 @@ Examples:
   ingest 2
   stats
 
-Pro Tip: You can also just type your question directly!
+Note: I synthesize responses using vector search + LLM.
+      I will always respond, even without exact passages.
+      I speak AS Nietzsche, not about him.
 ──────────────────────────────────────────────────────────
 `);
 }

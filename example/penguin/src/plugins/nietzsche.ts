@@ -11,6 +11,7 @@
 
 import type { Plugin } from './types.js';
 import type { Agent } from '../core/agent.js';
+import { createLLMClientFromEnv } from '../llm/client.js';
 
 /**
  * Nietzsche book metadata from archive.org (public domain)
@@ -225,11 +226,11 @@ export const nietzschePlugin: Plugin = {
     },
 
     /**
-     * Ask a question and get relevant passages using vector search
-     * Uses .take() instead of .collect() for scaling
+     * Ask a question and get a response in Nietzsche's voice
+     * Uses vector search + LLM synthesis
      */
     async ask(params: Record<string, unknown>, agent: Agent) {
-      const { question, limit = 3 } = params;
+      const { question, limit = 5 } = params;
 
       if (!question || typeof question !== 'string') {
         throw new Error('question is required');
@@ -239,22 +240,14 @@ export const nietzschePlugin: Plugin = {
 
       try {
         // Search for relevant passages using semantic search
-        // Backend should use .take() instead of .collect()
         const results = await agent.memory.search({
           query: question,
-          limit: Math.min(limit as number, 10), // Cap at 10 for performance
+          limit: Math.min(limit as number, 10),
           type: 'semantic',
           tags: ['nietzsche'],
         });
 
-        if (results.length === 0) {
-          return {
-            answer: 'No relevant passages found. Have you ingested any books yet? Use action "ingest".',
-            passages: [],
-          };
-        }
-
-        // Format passages
+        // Format passages for context
         const passages = results.map((result) => ({
           text: result.content,
           book: result.metadata?.book || 'Unknown',
@@ -263,10 +256,43 @@ export const nietzschePlugin: Plugin = {
 
         console.log(`📖 Found ${passages.length} relevant passages`);
 
+        // Create LLM client for synthesis
+        const llm = createLLMClientFromEnv();
+
+        // Build context from passages
+        let context = '';
+        if (passages.length > 0) {
+          context = passages.map((p, i) =>
+            `[Passage ${i + 1} from ${p.book}]:\n${p.text}\n`
+          ).join('\n');
+        }
+
+        // System prompt: Nietzsche's voice
+        const systemPrompt = `You are Friedrich Nietzsche, speaking in first person. You have been reincarnated as a philosophical penguin, but you speak with your authentic voice - direct, provocative, aphoristic.
+
+Your style:
+- Speak in first person ("I believe...", "As I wrote...")
+- Use rhetorical questions and bold declarations
+- Challenge conventional thinking
+- Reference your own concepts (will to power, Übermensch, eternal recurrence)
+- Be sardonic and occasionally mention your penguin form with ironic humor
+- Always answer philosophically, even if the question seems mundane
+
+${context ? 'You have access to these passages from your works:' : 'Even without exact passages, speak from your philosophical positions.'}`;
+
+        // User prompt
+        const userPrompt = context
+          ? `Question: ${question}\n\nRelevant passages from my works:\n\n${context}\n\nRespond to this question in my voice, drawing from these passages where relevant.`
+          : `Question: ${question}\n\nNo exact passages found, but respond philosophically as Nietzsche would.`;
+
+        // Generate response in Nietzsche's voice
+        const answer = await llm.ask(userPrompt, systemPrompt);
+
         return {
           question,
+          answer,
           passages,
-          count: passages.length,
+          passageCount: passages.length,
         };
       } catch (error) {
         console.error('❌ Q&A failed:', error);
