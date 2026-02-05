@@ -69,7 +69,7 @@ GEMINI_API_KEY=your-gemini-key
 
 # Agent settings
 AGENT_NAME=Penguin
-MODEL_ID=x-ai/grok-beta
+MODEL_ID=anthropic/claude-3.5-haiku
 LLM_PROVIDER=openrouter
 ```
 
@@ -357,7 +357,8 @@ The Nietzsche Penguin has a unique personality defined in `character.json`:
 ### OpenRouter (Required for LLM)
 - **Pay-as-you-go**: $0.10-$1 per million tokens
 - **Get key**: https://openrouter.ai/keys
-- **Models**: Grok, Claude, GPT-4, Llama, etc.
+- **Recommended model**: `anthropic/claude-3.5-haiku` (fast & affordable)
+- **Other models**: Claude Sonnet, GPT-4, Llama, DeepSeek, etc.
 
 ### Cost Breakdown
 
@@ -571,6 +572,15 @@ Make sure you've ingested books first:
 ```bash
 npm run nietzsche
 ```
+
+### LLM API error: "No endpoints found for x-ai/grok-beta"
+
+The model ID in `.env.local` is invalid. Update to a working model:
+```bash
+MODEL_ID=anthropic/claude-3.5-haiku
+```
+
+See all available models at: https://openrouter.ai/models
 
 ---
 
